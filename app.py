@@ -154,6 +154,10 @@ def index():
     return redirect(url_for('student.login'))
 
 with app.app_context():
-    init_db()
+    try:
+        init_db()
+    except Exception as e:
+        print("DB init error:", e)
+      
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
