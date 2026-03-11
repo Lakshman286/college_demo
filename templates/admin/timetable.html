@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}Timetable – Admin{% endblock %}
+{% block page_title %}Faculty Timetable{% endblock %}
+{% block page_subtitle %}Assign periods to faculty for sections{% endblock %}
+
+{% block sidebar %}
+<span class="nav-section-title">Overview</span>
+<a href="{{ url_for('admin.dashboard') }}"><span class="nav-icon">📊</span> Dashboard</a>
+<span class="nav-section-title">Academic</span>
+<a href="{{ url_for('admin.departments') }}"><span class="nav-icon">🏢</span> Departments</a>
+<a href="{{ url_for('admin.sections') }}"><span class="nav-icon">📐</span> Sections</a>
+<span class="nav-section-title">People</span>
+<a href="{{ url_for('admin.create_faculty') }}"><span class="nav-icon">➕</span> Create Faculty</a>
+<a href="{{ url_for('admin.manage_faculty') }}"><span class="nav-icon">👨‍🏫</span> Manage Faculty</a>
+<a href="{{ url_for('admin.create_student') }}"><span class="nav-icon">➕</span> Create Student</a>
+<a href="{{ url_for('admin.manage_students') }}"><span class="nav-icon">👨‍🎓</span> Manage Students</a>
+<a href="{{ url_for('admin.timetable') }}">
+    <span class="nav-icon">🗓️</span> Manage Timetable
+</a>
+
+<a href="{{ url_for('admin.timetable_view') }}">
+    <span class="nav-icon">📋</span> View Timetable
+</a>
+<span class="nav-section-title">Records</span>
+<a href="{{ url_for('admin.view_attendance') }}"><span class="nav-icon">📋</span> View Attendance</a>
+{% endblock %}
+{% block sidebar_footer %}<a href="{{ url_for('admin.logout') }}">🚪 Logout</a>{% endblock %}
+
+{% block content %}
+<div style="display:grid;grid-template-columns:1fr;gap:20px;">
+    <div class="card">
+        <div class="card-header"><div class="card-title">Assign Period</div></div>
+        <div class="card-body">
+            <form method="POST" id="timetableForm">
+                <input type="hidden" name="action" value="add">
+                <div class="form-group">
+                    <label>Department</label>
+                    <select name="department_id"
+                            class="form-control"
+                            onchange="filterFaculty(this.value)">
+                        <option value="">Select Department</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept.id }}"
+                            {% if filter_department == dept.id|string %}selected{% endif %}>
+                            {{ dept.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Faculty</label>
+                    <select name="faculty_id" class="form-control" required>
+                        <option value="">Select Faculty</option>
+                        {% for f in faculty_list %}
+                        <option value="{{ f.id }}">{{ f.name }} ({{ f.employee_id }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Section</label>
+                    <select name="section_id" class="form-control" required>
+                        <option value="">Select Section</option>
+                        {% for sec in sections %}
+                        <option value="{{ sec.id }}">{{ sec.branch_name }} – Y{{ sec.year_number }} – Sec {{ sec.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                <label>Assign Weekly Timetable</label>
+
+                <div class="table-wrapper">
+                <table class="attendance-table">
+                <thead>
+                <tr>
+                <th>Day</th>
+                <th>P1</th>
+                <th>P2</th>
+                <th>P3</th>
+                <th>P4</th>
+                <th>P5</th>
+                <th>P6</th>
+                <th>P7</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                {% for day in days %}
+                <tr>
+                <td><strong>{{ day }}</strong></td>
+
+                {% for p in periods %}
+                <td>
+                <input type="checkbox" name="tt_{{ day }}_{{ p }}" value="1">
+                </td>
+                {% endfor %}
+
+                </tr>
+                {% endfor %}
+
+                </tbody>
+                </table>
+                </div>
+
+                </div>
+
+
+                <button type="submit" class="btn btn-primary btn-block">Assign Period</button>
+            </form>
+        </div>
+    </div>
+    
+</div>
+{% if recent_entry %}
+
+<style>
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-box {
+    background: #fff;
+    width: 420px;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    text-align: left;
+    animation: slideUp 0.3s ease;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.modal-row {
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.modal-row strong {
+    color: #34495e;
+}
+
+.modal-btn {
+    margin-top: 18px;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #4f46e5;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.modal-btn:hover {
+    background: #4338ca;
+}
+
+@keyframes fadeIn {
+    from {opacity:0;}
+    to {opacity:1;}
+}
+
+@keyframes slideUp {
+    from {transform:translateY(20px); opacity:0;}
+    to {transform:translateY(0); opacity:1;}
+}
+</style>
+
+<div class="modal-overlay" id="successModal">
+    <div class="modal-box">
+        <div class="modal-title">✅ Period Assigned Successfully</div>
+
+        <div class="modal-row"><strong>Faculty:</strong> {{ recent_entry.faculty_name }}</div>
+        <div class="modal-row"><strong>Branch:</strong> {{ recent_entry.branch_name }}</div>
+        <div class="modal-row"><strong>Year:</strong> {{ recent_entry.year_number }}</div>
+        <div class="modal-row"><strong>Section:</strong> {{ recent_entry.section_name }}</div>
+        <div class="modal-row"><strong>Day:</strong> {{ recent_entry.day_of_week }}</div>
+        <div class="modal-row"><strong>Period:</strong> {{ recent_entry.period_number }}</div>
+
+        <button class="modal-btn" onclick="closeModal()">OK</button>
+    </div>
+</div>
+
+
+{% endif %}
+<script>
+function filterFaculty(deptId) {
+    if (!deptId) {
+        window.location.href = "{{ url_for('admin.timetable') }}";
+    } else {
+        window.location.href = "{{ url_for('admin.timetable') }}?department_id=" + deptId;
+    }
+}
+
+function closeModal() {
+    document.getElementById("successModal").style.display = "none";
+}
+</script>
+{% endblock %}

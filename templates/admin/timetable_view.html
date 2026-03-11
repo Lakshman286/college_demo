@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Section Timetable{% endblock %}
+{% block page_title %}Section Wise Timetable{% endblock %}
+{% block sidebar %}
+<span class="nav-section-title">Overview</span>
+<a href="{{ url_for('admin.dashboard') }}"><span class="nav-icon">📊</span> Dashboard</a>
+
+<span class="nav-section-title">Academic</span>
+<a href="{{ url_for('admin.departments') }}"><span class="nav-icon">🏢</span> Departments</a>
+<a href="{{ url_for('admin.sections') }}"><span class="nav-icon">📐</span> Sections</a>
+
+<span class="nav-section-title">People</span>
+<a href="{{ url_for('admin.create_faculty') }}"><span class="nav-icon">➕</span> Create Faculty</a>
+<a href="{{ url_for('admin.manage_faculty') }}"><span class="nav-icon">👨‍🏫</span> Manage Faculty</a>
+<a href="{{ url_for('admin.create_student') }}"><span class="nav-icon">➕</span> Create Student</a>
+<a href="{{ url_for('admin.manage_students') }}"><span class="nav-icon">👨‍🎓</span> Manage Students</a>
+
+<a href="{{ url_for('admin.timetable') }}">
+    <span class="nav-icon">🗓️</span> Manage Timetable
+</a>
+
+<a href="{{ url_for('admin.timetable_view') }}" class="active">
+    <span class="nav-icon">📋</span> View Timetable
+</a>
+
+<span class="nav-section-title">Records</span>
+<a href="{{ url_for('admin.view_attendance') }}"><span class="nav-icon">📋</span> View Attendance</a>
+{% endblock %}
+{% block sidebar_footer %}<a href="{{ url_for('admin.logout') }}">🚪 Logout</a>{% endblock %}
+{% block content %}
+
+{% for key, sec in section_tables.items() %}
+
+<div class="card" style="margin-bottom:30px;">
+    <div class="card-header"
+        style="display:flex; justify-content:space-between; align-items:center;">
+
+        <div class="card-title">
+            Year {{ sec.year }} {{ sec.branch }} - Section {{ sec.section }}
+        </div>
+
+        <form method="POST"
+            action="{{ url_for('admin.delete_section_timetable') }}"
+            onsubmit="return confirm('Are you sure you want to delete timetable for this section?');">
+
+            <input type="hidden" name="section_id" value="{{ sec.section_id }}">
+
+            <button type="submit" class="btn btn-danger btn-sm">
+                🗑 Delete
+            </button>
+        </form>
+
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    {% for p in periods %}
+                    <th>P{{ p }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for day in days %}
+                <tr>
+                    <td><strong>{{ day }}</strong></td>
+                    {% for p in periods %}
+                    <td>
+                        {{ sec.data.get((day, p), "") }}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endfor %}
+
+{% endblock %}

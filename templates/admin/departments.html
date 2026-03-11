@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Departments & Branches – Admin{% endblock %}
+{% block page_title %}Departments & Branches{% endblock %}
+{% block page_subtitle %}Manage academic departments and engineering branches{% endblock %}
+
+{% block sidebar %}
+<span class="nav-section-title">Overview</span>
+<a href="{{ url_for('admin.dashboard') }}"><span class="nav-icon">📊</span> Dashboard</a>
+<span class="nav-section-title">Academic</span>
+<a href="{{ url_for('admin.departments') }}" class="active"><span class="nav-icon">🏢</span> Departments & Branches</a>
+<a href="{{ url_for('admin.sections') }}"><span class="nav-icon">📐</span> Sections</a>
+<span class="nav-section-title">People</span>
+<a href="{{ url_for('admin.create_faculty') }}"><span class="nav-icon">➕</span> Create Faculty</a>
+<a href="{{ url_for('admin.manage_faculty') }}"><span class="nav-icon">👨‍🏫</span> Manage Faculty</a>
+<a href="{{ url_for('admin.create_student') }}"><span class="nav-icon">➕</span> Create Student</a>
+<a href="{{ url_for('admin.manage_students') }}"><span class="nav-icon">👨‍🎓</span> Manage Students</a>
+<span class="nav-section-title">Scheduling</span>
+<a href="{{ url_for('admin.timetable') }}"><span class="nav-icon">🗓️</span> Timetable</a>
+<span class="nav-section-title">Records</span>
+<a href="{{ url_for('admin.view_attendance') }}"><span class="nav-icon">📋</span> View Attendance</a>
+{% endblock %}
+{% block sidebar_footer %}<a href="{{ url_for('admin.logout') }}">🚪 Logout</a>{% endblock %}
+
+{% block content %}
+<div style="display:grid;grid-template-columns:1fr 2fr;gap:20px;" class="form-row">
+    <div class="card">
+        <div class="card-header"><div class="card-title">Add Entry</div></div>
+        <div class="card-body">
+            <form method="POST">
+                <input type="hidden" name="action" value="add">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" class="form-control" placeholder="e.g. Computer Science or B.Tech CSE" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Add Entry</button>
+            </form>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">All Departments & Branches</div>
+            <span class="badge badge-info">{{ departments|length }} total</span>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>#</th><th>Name</th><th>Action</th></tr>
+                </thead>
+                <tbody>
+                    {% for dept in departments %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>🏢 {{ dept.name }}</td>
+                        <td>
+                            <form method="POST" style="display:inline;" onsubmit="return confirm('Delete {{ dept.name }}?')">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="dept_id" value="{{ dept.id }}">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="3" class="text-center text-muted">No entries yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

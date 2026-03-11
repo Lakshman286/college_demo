@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Sections – Admin{% endblock %}
+{% block page_title %}Sections{% endblock %}
+{% block page_subtitle %}Manage department-year sections{% endblock %}
+
+{% block sidebar %}
+<span class="nav-section-title">Overview</span>
+<a href="{{ url_for('admin.dashboard') }}"><span class="nav-icon">📊</span> Dashboard</a>
+<span class="nav-section-title">Academic</span>
+<a href="{{ url_for('admin.departments') }}"><span class="nav-icon">🏢</span> Departments</a>
+<a href="{{ url_for('admin.sections') }}" class="active"><span class="nav-icon">📐</span> Sections</a>
+<span class="nav-section-title">People</span>
+<a href="{{ url_for('admin.create_faculty') }}"><span class="nav-icon">➕</span> Create Faculty</a>
+<a href="{{ url_for('admin.manage_faculty') }}"><span class="nav-icon">👨‍🏫</span> Manage Faculty</a>
+<a href="{{ url_for('admin.create_student') }}"><span class="nav-icon">➕</span> Create Student</a>
+<a href="{{ url_for('admin.manage_students') }}"><span class="nav-icon">👨‍🎓</span> Manage Students</a>
+<span class="nav-section-title">Scheduling</span>
+<a href="{{ url_for('admin.timetable') }}"><span class="nav-icon">🗓️</span> Timetable</a>
+<span class="nav-section-title">Records</span>
+<a href="{{ url_for('admin.view_attendance') }}"><span class="nav-icon">📋</span> View Attendance</a>
+{% endblock %}
+{% block sidebar_footer %}<a href="{{ url_for('admin.logout') }}">🚪 Logout</a>{% endblock %}
+
+{% block content %}
+<div style="display:grid;grid-template-columns:1fr 2fr;gap:20px;">
+    <div class="card">
+        <div class="card-header"><div class="card-title">Add Section</div></div>
+        <div class="card-body">
+            <form method="POST">
+                <input type="hidden" name="action" value="add">
+                <div class="form-group">
+                    <label>Department</label>
+                    <select name="branch_id" class="form-control" required>
+                        <option value="">Select Department</option>
+                        {% for b in branches %}
+                        <option value="{{ b.id }}">{{ b.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Year</label>
+                    <select name="year_id" class="form-control" required>
+                        <option value="">Select Year</option>
+                        {% for y in years %}
+                        <option value="{{ y.id }}">{{ y.year_number }}{% if y.year_number == 1 %}st{% elif y.year_number == 2 %}nd{% elif y.year_number == 3 %}rd{% else %}th{% endif %} Year</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Section Name</label>
+                    <input type="text" name="name" class="form-control" placeholder="e.g. A" maxlength="2" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Add Section</button>
+            </form>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">Filter Sections</div>
+        </div>
+        <div class="card-body">
+            <form method="GET" class="filter-bar" style="margin-bottom:0;border:none;padding:0;">
+                <div class="filter-group">
+                    <label>Department</label>
+                    <select name="branch_id" class="form-control">
+                        <option value="">All Department</option>
+                        {% for b in branches %}
+                        <option value="{{ b.id }}" {% if filter_branch == b.id|string %}selected{% endif %}>{{ b.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Year</label>
+                    <select name="year_id" class="form-control">
+                        <option value="">All Years</option>
+                        {% for y in years %}
+                        <option value="{{ y.id }}" {% if filter_year == y.id|string %}selected{% endif %}>Year {{ y.year_number }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="{{ url_for('admin.sections') }}" class="btn btn-secondary">Reset</a>
+            </form>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Department</th><th>Year</th><th>Section</th><th>Action</th></tr>
+                </thead>
+                <tbody>
+                    {% for sec in sections %}
+                    <tr>
+                        <td>{{ sec.branch_name }}</td>
+                        <td>Year {{ sec.year_number }}</td>
+                        <td><span class="section-label">Section {{ sec.name }}</span></td>
+                        <td>
+                            <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this section?')">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="section_id" value="{{ sec.id }}">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-center text-muted">No sections found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard – Attendance MS{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+{% block page_subtitle %}System overview and quick access{% endblock %}
+
+{% block sidebar %}
+<span class="nav-section-title">Overview</span>
+<a href="{{ url_for('admin.dashboard') }}" class="active"><span class="nav-icon">📊</span> Dashboard</a>
+
+<span class="nav-section-title">Academic</span>
+<a href="{{ url_for('admin.departments') }}"><span class="nav-icon">🏢</span> Departments & Branches</a>
+<a href="{{ url_for('admin.sections') }}"><span class="nav-icon">📐</span> Sections</a>
+
+<span class="nav-section-title">People</span>
+<a href="{{ url_for('admin.create_faculty') }}"><span class="nav-icon">➕</span> Create Faculty</a>
+<a href="{{ url_for('admin.manage_faculty') }}"><span class="nav-icon">👨‍🏫</span> Manage Faculty</a>
+<a href="{{ url_for('admin.create_student') }}"><span class="nav-icon">➕</span> Create Student</a>
+<a href="{{ url_for('admin.manage_students') }}"><span class="nav-icon">👨‍🎓</span> Manage Students</a>
+
+<span class="nav-section-title">Scheduling</span>
+<a href="{{ url_for('admin.timetable') }}"><span class="nav-icon">🗓️</span> Timetable</a>
+
+<span class="nav-section-title">Records</span>
+<a href="{{ url_for('admin.view_attendance') }}"><span class="nav-icon">📋</span> View Attendance</a>
+{% endblock %}
+
+{% block sidebar_footer %}
+<a href="{{ url_for('admin.logout') }}">🚪 Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue">👨‍🏫</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ faculty_count }}</div>
+            <div class="stat-label">Total Faculty</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">👨‍🎓</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ student_count }}</div>
+            <div class="stat-label">Total Students</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">🏢</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ dept_count }}</div>
+            <div class="stat-label">Departments</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">📐</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ section_count }}</div>
+            <div class="stat-label">Sections</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon teal">📋</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ attendance_count }}</div>
+            <div class="stat-label">Attendance Records</div>
+        </div>
+    </div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">Quick Actions</div>
+        </div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
+            <a href="{{ url_for('admin.create_faculty') }}" class="btn btn-primary">➕ Create New Faculty</a>
+            <a href="{{ url_for('admin.create_student') }}" class="btn btn-success">➕ Create New Student</a>
+            <a href="{{ url_for('admin.timetable') }}" class="btn btn-info">🗓️ Manage Timetable</a>
+            <a href="{{ url_for('admin.view_attendance') }}" class="btn btn-secondary">📋 View All Attendance</a>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">Academic Structure</div>
+        </div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
+            <a href="{{ url_for('admin.departments') }}" class="btn btn-warning">🏢 Manage Departments & Branches</a>
+            <a href="{{ url_for('admin.sections') }}" class="btn btn-warning">📐 Manage Sections</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

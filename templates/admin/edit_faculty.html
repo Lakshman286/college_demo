@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Faculty – Admin{% endblock %}
+{% block page_title %}Edit Faculty{% endblock %}
+{% block page_subtitle %}Update faculty information{% endblock %}
+
+{% block sidebar %}
+<span class="nav-section-title">Overview</span>
+<a href="{{ url_for('admin.dashboard') }}"><span class="nav-icon">📊</span> Dashboard</a>
+<span class="nav-section-title">Academic</span>
+<a href="{{ url_for('admin.departments') }}"><span class="nav-icon">🏢</span> Departments</a>
+<a href="{{ url_for('admin.sections') }}"><span class="nav-icon">📐</span> Sections</a>
+<span class="nav-section-title">People</span>
+<a href="{{ url_for('admin.create_faculty') }}"><span class="nav-icon">➕</span> Create Faculty</a>
+<a href="{{ url_for('admin.manage_faculty') }}" class="active"><span class="nav-icon">👨‍🏫</span> Manage Faculty</a>
+<a href="{{ url_for('admin.create_student') }}"><span class="nav-icon">➕</span> Create Student</a>
+<a href="{{ url_for('admin.manage_students') }}"><span class="nav-icon">👨‍🎓</span> Manage Students</a>
+<span class="nav-section-title">Scheduling</span>
+<a href="{{ url_for('admin.timetable') }}"><span class="nav-icon">🗓️</span> Timetable</a>
+<span class="nav-section-title">Records</span>
+<a href="{{ url_for('admin.view_attendance') }}"><span class="nav-icon">📋</span> View Attendance</a>
+{% endblock %}
+{% block sidebar_footer %}<a href="{{ url_for('admin.logout') }}">🚪 Logout</a>{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:640px;">
+    <div class="card-header"><div class="card-title">✏️ Edit: {{ faculty.name }}</div></div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" name="name" class="form-control" value="{{ faculty.name }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Employee ID *</label>
+                    <input type="text" name="employee_id" class="form-control" value="{{ faculty.employee_id }}" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" class="form-control" value="{{ faculty.username }}" disabled style="opacity:0.6;">
+                <small style="color:var(--text-muted);font-size:11px;">Username cannot be changed.</small>
+            </div>
+            <div class="form-group">
+                <label>New Password <small style="font-weight:400;color:var(--text-muted);">(leave blank to keep current)</small></label>
+                <input type="password" name="password" class="form-control" placeholder="Set new password" autocomplete="new-password">
+            </div>
+            <div class="form-group">
+                <label>Department</label>
+                <select name="department_id" class="form-control">
+                    <option value="">-- No Department --</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if faculty.department_id == dept.id %}selected{% endif %}>{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="d-flex gap-12 mt-16">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="{{ url_for('admin.manage_faculty') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

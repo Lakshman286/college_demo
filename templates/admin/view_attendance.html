@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Faculty Dashboard – Attendance MS{% endblock %}
+{% block page_title %}Faculty Dashboard{% endblock %}
+{% block page_subtitle %}Welcome, {{ faculty.name if faculty else session.username }}{% endblock %}
+
+{% block sidebar %}
+<span class="nav-section-title">Overview</span>
+<a href="{{ url_for('faculty.dashboard') }}" class="active"><span class="nav-icon">📊</span> Dashboard</a>
+<span class="nav-section-title">Attendance</span>
+<a href="{{ url_for('faculty.mark_attendance') }}"><span class="nav-icon">✅</span> Mark Attendance</a>
+<a href="{{ url_for('faculty.view_attendance') }}"><span class="nav-icon">📋</span> View Records</a>
+{% endblock %}
+{% block sidebar_footer %}<a href="{{ url_for('faculty.logout') }}">🚪 Logout</a>{% endblock %}
+
+{% block content %}
+{% if faculty %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue">👨‍🏫</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ faculty.employee_id }}</div>
+            <div class="stat-label">Employee ID</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">🏢</div>
+        <div class="stat-info">
+            <div class="stat-value" style="font-size:16px;">{{ faculty.dept_name or 'N/A' }}</div>
+            <div class="stat-label">Department</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ today_count }}</div>
+            <div class="stat-label">Marked Today</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon teal">📋</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ total_count }}</div>
+            <div class="stat-label">Total Records</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">My Assigned Sections</div>
+            <span class="badge badge-info">{{ assignments|length }}</span>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Branch</th><th>Year</th><th>Section</th><th>Action</th></tr>
+                </thead>
+                <tbody>
+                    {% for a in assignments %}
+                    <tr>
+                        <td>{{ a.branch_name }}</td>
+                        <td>Year {{ a.year_number }}</td>
+                        <td><span class="section-label">{{ a.section_name }}</span></td>
+                        <td>
+                            <a href="{{ url_for('faculty.mark_attendance', section_id=a.id) }}" class="btn btn-success btn-sm">Mark</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4"><div class="empty-state"><div class="empty-icon">📐</div><p>No sections assigned yet. Contact admin.</p></div></td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header"><div class="card-title">Quick Actions</div></div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
+            <a href="{{ url_for('faculty.mark_attendance') }}" class="btn btn-success">✅ Mark Attendance</a>
+            <a href="{{ url_for('faculty.view_attendance') }}" class="btn btn-info">📋 View My Records</a>
+        </div>
+        <div class="card-body" style="border-top:1px solid var(--border);padding-top:16px;">
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;font-weight:600;">TODAY</div>
+            <div style="font-size:20px;font-weight:800;color:var(--primary);">{{ today }}</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

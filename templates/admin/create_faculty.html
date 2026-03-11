@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Faculty – Admin{% endblock %}
+{% block page_title %}Create Faculty{% endblock %}
+{% block page_subtitle %}Add a new faculty member{% endblock %}
+
+{% block sidebar %}
+<span class="nav-section-title">Overview</span>
+<a href="{{ url_for('admin.dashboard') }}"><span class="nav-icon">📊</span> Dashboard</a>
+<span class="nav-section-title">Academic</span>
+<a href="{{ url_for('admin.departments') }}"><span class="nav-icon">🏢</span> Departments</a>
+<a href="{{ url_for('admin.sections') }}"><span class="nav-icon">📐</span> Sections</a>
+<span class="nav-section-title">People</span>
+<a href="{{ url_for('admin.create_faculty') }}" class="active"><span class="nav-icon">➕</span> Create Faculty</a>
+<a href="{{ url_for('admin.manage_faculty') }}"><span class="nav-icon">👨‍🏫</span> Manage Faculty</a>
+<a href="{{ url_for('admin.create_student') }}"><span class="nav-icon">➕</span> Create Student</a>
+<a href="{{ url_for('admin.manage_students') }}"><span class="nav-icon">👨‍🎓</span> Manage Students</a>
+<span class="nav-section-title">Scheduling</span>
+<a href="{{ url_for('admin.timetable') }}"><span class="nav-icon">🗓️</span> Timetable</a>
+<span class="nav-section-title">Records</span>
+<a href="{{ url_for('admin.view_attendance') }}"><span class="nav-icon">📋</span> View Attendance</a>
+{% endblock %}
+{% block sidebar_footer %}<a href="{{ url_for('admin.logout') }}">🚪 Logout</a>{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:640px;">
+    <div class="card-header"><div class="card-title">👨‍🏫 New Faculty Details</div></div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" name="name" class="form-control" placeholder="Enter full name" required>
+                </div>
+                <div class="form-group">
+                    <label>Employee ID *</label>
+                    <input type="text" name="employee_id" class="form-control" placeholder="e.g. EMP001" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Username (Login) *</label>
+                    <input type="text" name="username" class="form-control" placeholder="Login username" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Password *</label>
+                    <input type="password" name="password" class="form-control" placeholder="Set password" required autocomplete="new-password">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Department</label>
+                <select name="department_id" class="form-control">
+                    <option value="">-- Select Department (optional) --</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.id }}">{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="d-flex gap-12 mt-16">
+                <button type="submit" class="btn btn-primary">Create Faculty</button>
+                <a href="{{ url_for('admin.manage_faculty') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

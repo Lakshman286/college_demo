@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIET Student Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="login-wrapper" style="background:linear-gradient(135deg,#6d28d9 0%,#7c3aed 100%);">
+    <div class="login-card">
+        <div class="login-logo">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" onerror="this.style.display='none'">
+            <!-- <div class="institute-name">Student Attendance Management System</div> -->
+        </div>
+        <div class="login-title" style="color:#6d28d9;">Student Portal</div>
+        <div class="login-subtitle">Sign in to view your attendance records</div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+        <form method="POST">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" class="form-control" placeholder="Enter student username" required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Enter password" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn btn-block" style="background:#6d28d9;color:#fff;margin-top:8px;">Sign In as Student</button>
+        </form>
+        <div style="text-align:center;margin-top:20px;font-size:13px;color:#64748b;">
+            <a href="{{ url_for('faculty.login') }}" style="color:#7c3aed;text-decoration:none;">Faculty Login</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

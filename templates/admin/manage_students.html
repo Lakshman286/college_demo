@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Students – Admin{% endblock %}
+{% block page_title %}Manage Students{% endblock %}
+{% block page_subtitle %}View, filter and edit students{% endblock %}
+
+{% block sidebar %}
+<span class="nav-section-title">Overview</span>
+<a href="{{ url_for('admin.dashboard') }}"><span class="nav-icon">📊</span> Dashboard</a>
+<span class="nav-section-title">Academic</span>
+<a href="{{ url_for('admin.departments') }}"><span class="nav-icon">🏢</span> Departments</a>
+<a href="{{ url_for('admin.sections') }}"><span class="nav-icon">📐</span> Sections</a>
+<span class="nav-section-title">People</span>
+<a href="{{ url_for('admin.create_faculty') }}"><span class="nav-icon">➕</span> Create Faculty</a>
+<a href="{{ url_for('admin.manage_faculty') }}"><span class="nav-icon">👨‍🏫</span> Manage Faculty</a>
+<a href="{{ url_for('admin.create_student') }}"><span class="nav-icon">➕</span> Create Student</a>
+<a href="{{ url_for('admin.manage_students') }}" class="active"><span class="nav-icon">👨‍🎓</span> Manage Students</a>
+<span class="nav-section-title">Scheduling</span>
+<a href="{{ url_for('admin.timetable') }}"><span class="nav-icon">🗓️</span> Timetable</a>
+<span class="nav-section-title">Records</span>
+<a href="{{ url_for('admin.view_attendance') }}"><span class="nav-icon">📋</span> View Attendance</a>
+{% endblock %}
+{% block sidebar_footer %}<a href="{{ url_for('admin.logout') }}">🚪 Logout</a>{% endblock %}
+
+{% block top_bar_right %}
+<a href="{{ url_for('admin.create_student') }}" class="btn btn-success btn-sm">➕ Add Student</a>
+{% endblock %}
+
+{% block content %}
+<div class="filter-bar">
+    <form method="GET" style="display:contents;">
+        <div class="filter-group">
+            <label>Department</label>
+            <select name="branch_id" class="form-control">
+                <option value="">All Departments</option>
+                {% for b in branches %}
+                <option value="{{ b.id }}" {% if filter_branch == b.id|string %}selected{% endif %}>{{ b.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Year</label>
+            <select name="year_id" class="form-control">
+                <option value="">All Years</option>
+                {% for y in years %}
+                <option value="{{ y.id }}" {% if filter_year == y.id|string %}selected{% endif %}>Year {{ y.year_number }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Section</label>
+            <select name="section_id" class="form-control">
+                <option value="">All Sections</option>
+                {% for sec in sections %}
+                <option value="{{ sec.id }}" {% if filter_section == sec.id|string %}selected{% endif %}>{{ sec.branch_name }} Y{{ sec.year_number }} {{ sec.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="align-self:flex-end;">Filter</button>
+        <a href="{{ url_for('admin.manage_students') }}" class="btn btn-secondary" style="align-self:flex-end;">Reset</a>
+    </form>
+</div>
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Students</div>
+        <span class="badge badge-info">{{ students|length }} found</span>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr><th>Name</th><th>Roll Number</th><th>Username</th><th>Department</th><th>Year</th><th>Section</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for s in students %}
+                <tr>
+                    <td><strong>{{ s.name }}</strong></td>
+                    <td><code>{{ s.roll_number }}</code></td>
+                    <td>{{ s.username }}</td>
+                    <td>{{ s.branch_name or '—' }}</td>
+                    <td>{{ ('Year ' ~ s.year_number) if s.year_number else '—' }}</td>
+                    <td>{{ ('Sec ' ~ s.section_name) if s.section_name else '—' }}</td>
+                    <td>
+                        <div class="d-flex gap-8">
+                            <a href="{{ url_for('admin.edit_student', student_id=s.id) }}" class="btn btn-warning btn-sm">Edit</a>
+                            <form method="POST" action="{{ url_for('admin.delete_student', student_id=s.id) }}" onsubmit="return confirm('Delete student {{ s.name }}?')">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">👨‍🎓</div><p>No students found.</p></div></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

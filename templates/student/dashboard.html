@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard – Attendance MS{% endblock %}
+{% block page_title %}My Dashboard{% endblock %}
+{% block page_subtitle %}Welcome, {{ student.name if student else session.username }}{% endblock %}
+
+{% block sidebar %}
+<span class="nav-section-title">My Portal</span>
+<a href="{{ url_for('student.dashboard') }}" class="active"><span class="nav-icon">📊</span> Dashboard</a>
+<a href="{{ url_for('student.view_attendance') }}"><span class="nav-icon">📋</span> My Attendance</a>
+{% endblock %}
+{% block sidebar_footer %}<a href="{{ url_for('student.logout') }}">🚪 Logout</a>{% endblock %}
+
+{% block content %}
+{% if student %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue">🆔</div>
+        <div class="stat-info">
+            <div class="stat-value" style="font-size:18px;">{{ student.roll_number }}</div>
+            <div class="stat-label">Roll Number</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">🌿</div>
+        <div class="stat-info">
+            <div class="stat-value" style="font-size:14px;">{{ student.branch_name or 'N/A' }}</div>
+            <div class="stat-label">Branch</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">📅</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ ('Year ' ~ student.year_number) if student.year_number else 'N/A' }}</div>
+            <div class="stat-label">Year</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon teal">📐</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ ('Sec ' ~ student.section_name) if student.section_name else 'N/A' }}</div>
+            <div class="stat-label">Section</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div style="display:grid;grid-template-columns:1fr 2fr;gap:20px;">
+    <div class="card">
+        <div class="card-body pct-card">
+            <div class="pct-circle {% if percentage >= 75 %}good{% elif percentage >= 60 %}warn{% else %}bad{% endif %}">
+                {{ percentage }}%
+            </div>
+            <div style="font-size:16px;font-weight:700;margin-bottom:8px;">Attendance</div>
+            <div style="font-size:13px;color:var(--text-muted);">{{ present }} present / {{ total }} total</div>
+            <div class="progress-bar-wrap mt-8">
+                <div class="progress-bar-fill {% if percentage < 60 %}danger{% elif percentage < 75 %}warn{% endif %}" style="width:{{ percentage }}%"></div>
+            </div>
+            {% if percentage < 75 %}
+            <div class="alert alert-warning mt-8" style="font-size:12px;">
+                ⚠️ Attendance below 75%. Please attend more classes.
+            </div>
+            {% else %}
+            <div class="alert alert-success mt-8" style="font-size:12px;">
+                ✅ Good attendance! Keep it up.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">Recent Attendance</div>
+            <a href="{{ url_for('student.view_attendance') }}" class="btn btn-info btn-sm">View All</a>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Date</th><th>Period</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    {% for r in recent %}
+                    <tr>
+                        <td>{{ r.date }}</td>
+                        <td><span class="badge badge-primary">P{{ r.period_number }}</span></td>
+                        <td>
+                            {% if r.status == 'present' %}
+                            <span class="badge badge-success">Present</span>
+                            {% else %}
+                            <span class="badge badge-danger">Absent</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="3" class="text-center text-muted" style="padding:20px;">No attendance records yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

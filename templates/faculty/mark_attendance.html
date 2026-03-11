@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Mark Attendance – Faculty{% endblock %}
+{% block page_title %}Mark Attendance{% endblock %}
+{% block page_subtitle %}Record student attendance for your assigned sections{% endblock %}
+
+{% block sidebar %}
+<span class="nav-section-title">Overview</span>
+<a href="{{ url_for('faculty.dashboard') }}"><span class="nav-icon">📊</span> Dashboard</a>
+<span class="nav-section-title">Attendance</span>
+<a href="{{ url_for('faculty.mark_attendance') }}" class="active"><span class="nav-icon">✅</span> Mark Attendance</a>
+<a href="{{ url_for('faculty.view_attendance') }}"><span class="nav-icon">📋</span> View Records</a>
+{% endblock %}
+{% block sidebar_footer %}<a href="{{ url_for('faculty.logout') }}">🚪 Logout</a>{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header"><div class="card-title">Select Section, Period & Date</div></div>
+    <div class="card-body">
+        <form method="GET" class="filter-bar" style="border:none;padding:0;margin:0;">
+            <div class="filter-group">
+                <label>Section</label>
+                <select name="section_id" class="form-control" required>
+                    <option value="">Select Section</option>
+                    {% for sec in assigned_sections %}
+                    <option value="{{ sec.id }}" {% if selected_section_id == sec.id|string %}selected{% endif %}>
+                        {{ sec.branch_name }} – Y{{ sec.year_number }} – Sec {{ sec.section_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Date</label>
+                <input type="date" name="date" id="att_date" class="form-control" value="{{ selected_date }}" max="{{ today }}" onchange="updateDay()">
+                <div id="day_display" style="font-size: 11px; font-weight: bold; color: var(--primary); margin-top: 4px;"></div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="align-self:flex-end;">Load Students</button>
+        </form>
+    </div>
+</div>
+
+{% if students %}
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Step 2 – Mark Attendance</div>
+        <div class="d-flex gap-8 align-center">
+            <span class="badge badge-info">{{ students|length }} students</span>
+            <span class="badge badge-warning">Date: {{ selected_date }}</span>
+        </div>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <input type="hidden" name="section_id" value="{{ selected_section_id }}">
+            {% for p in assigned_periods %}
+            <input type="hidden" name="period_number" value="{{ p.period_number }}">
+            {% endfor %}
+            <input type="hidden" name="date" value="{{ selected_date }}">
+            <input type="hidden" name="submit_attendance" value="1">
+
+            <div style="margin-bottom: 20px;">
+                <input type="text" id="studentSearch" class="form-control" placeholder="🔍 Search by Name or Roll No..." onkeyup="filterStudents()">
+            </div>
+
+            <div class="table-wrapper">
+                <table class="attendance-table">
+                    <thead>
+                        <tr>
+                            <th>SL.NO</th>
+                            <th>NAME OF THE STUDENT</th>
+                            <th>ROLL NO</th>
+                            {% for p in assigned_periods %}
+                            <th>P{{ p.period_number }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceBody">
+                        {% for student in students %}
+                        <tr class="student-row">
+                            <td>{{ loop.index }}</td>
+                            <td class="student-name"><strong>{{ student.name }}</strong></td>
+                            <td class="student-roll">{{ student.roll_number }}</td>
+                            {% for p in assigned_periods %}
+                            <td>
+                                <input type="checkbox" name="status_{{ student.id }}_{{ p.period_number }}" value="present">
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-24">
+                <button type="submit" class="btn btn-primary" style="padding:12px 32px;font-size:15px;">Submit Attendance</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% elif selected_section_id %}
+<div class="card">
+    <div class="card-body">
+        <div class="empty-state">
+            <div class="empty-icon">👨‍🎓</div>
+            <p>No students found in this section. Contact admin to enroll students.</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+function filterStudents() {
+    const input = document.getElementById('studentSearch');
+    const filter = input.value.toLowerCase();
+    const rows = document.querySelectorAll('.student-row');
+
+    rows.forEach(row => {
+        const name = row.querySelector('.student-name').textContent.toLowerCase();
+        const roll = row.querySelector('.student-roll').textContent.toLowerCase();
+        if (name.includes(filter) || roll.includes(filter)) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    });
+}
+function updateDay() {
+    const dateVal = document.getElementById('att_date').value;
+    if (dateVal) {
+        const d = new Date(dateVal);
+        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        document.getElementById('day_display').textContent = days[d.getUTCDay()];
+    }
+}
+updateDay();
+</script>
+{% endblock %}

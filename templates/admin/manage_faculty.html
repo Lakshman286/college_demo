@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Faculty – Admin{% endblock %}
+{% block page_title %}Manage Faculty{% endblock %}
+{% block page_subtitle %}View, filter and edit faculty members{% endblock %}
+
+{% block sidebar %}
+<span class="nav-section-title">Overview</span>
+<a href="{{ url_for('admin.dashboard') }}"><span class="nav-icon">📊</span> Dashboard</a>
+<span class="nav-section-title">Academic</span>
+<a href="{{ url_for('admin.departments') }}"><span class="nav-icon">🏢</span> Departments</a>
+<a href="{{ url_for('admin.sections') }}"><span class="nav-icon">📐</span> Sections</a>
+<span class="nav-section-title">People</span>
+<a href="{{ url_for('admin.create_faculty') }}"><span class="nav-icon">➕</span> Create Faculty</a>
+<a href="{{ url_for('admin.manage_faculty') }}" class="active"><span class="nav-icon">👨‍🏫</span> Manage Faculty</a>
+<a href="{{ url_for('admin.create_student') }}"><span class="nav-icon">➕</span> Create Student</a>
+<a href="{{ url_for('admin.manage_students') }}"><span class="nav-icon">👨‍🎓</span> Manage Students</a>
+<span class="nav-section-title">Scheduling</span>
+<a href="{{ url_for('admin.timetable') }}"><span class="nav-icon">🗓️</span> Timetable</a>
+<span class="nav-section-title">Records</span>
+<a href="{{ url_for('admin.view_attendance') }}"><span class="nav-icon">📋</span> View Attendance</a>
+{% endblock %}
+{% block sidebar_footer %}<a href="{{ url_for('admin.logout') }}">🚪 Logout</a>{% endblock %}
+
+{% block top_bar_right %}
+<a href="{{ url_for('admin.create_faculty') }}" class="btn btn-primary btn-sm">➕ Add Faculty</a>
+{% endblock %}
+
+{% block content %}
+<div class="filter-bar">
+    <form method="GET" style="display:contents;">
+        <div class="filter-group">
+            <label>Filter by Department</label>
+            <select name="department_id" class="form-control">
+                <option value="">All Departments</option>
+                {% for dept in departments %}
+                <option value="{{ dept.id }}" {% if filter_dept == dept.id|string %}selected{% endif %}>{{ dept.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="align-self:flex-end;">Filter</button>
+        <a href="{{ url_for('admin.manage_faculty') }}" class="btn btn-secondary" style="align-self:flex-end;">Reset</a>
+    </form>
+</div>
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Faculty Members</div>
+        <span class="badge badge-info">{{ faculty_list|length }} found</span>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr><th>Name</th><th>Employee ID</th><th>Username</th><th>Department</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for f in faculty_list %}
+                <tr>
+                    <td><strong>{{ f.name }}</strong></td>
+                    <td><code>{{ f.employee_id }}</code></td>
+                    <td>{{ f.username }}</td>
+                    <td>{{ f.dept_name or '<span class="text-muted">Unassigned</span>'|safe }}</td>
+                    <td>
+                        <div class="d-flex gap-8">
+                            <a href="{{ url_for('admin.edit_faculty', faculty_id=f.id) }}" class="btn btn-warning btn-sm">Edit</a>
+                            <form method="POST" action="{{ url_for('admin.delete_faculty', faculty_id=f.id) }}" onsubmit="return confirm('Delete faculty {{ f.name }}? This cannot be undone.')">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="empty-state"><div class="empty-icon">👨‍🏫</div><p>No faculty members found.</p></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

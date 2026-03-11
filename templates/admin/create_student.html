@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Student – Admin{% endblock %}
+{% block page_title %}Create Student{% endblock %}
+{% block page_subtitle %}Enroll a new student{% endblock %}
+
+{% block sidebar %}
+<span class="nav-section-title">Overview</span>
+<a href="{{ url_for('admin.dashboard') }}"><span class="nav-icon">📊</span> Dashboard</a>
+<span class="nav-section-title">Academic</span>
+<a href="{{ url_for('admin.departments') }}"><span class="nav-icon">🏢</span> Departments</a>
+<a href="{{ url_for('admin.sections') }}"><span class="nav-icon">📐</span> Sections</a>
+<span class="nav-section-title">People</span>
+<a href="{{ url_for('admin.create_faculty') }}"><span class="nav-icon">➕</span> Create Faculty</a>
+<a href="{{ url_for('admin.manage_faculty') }}"><span class="nav-icon">👨‍🏫</span> Manage Faculty</a>
+<a href="{{ url_for('admin.create_student') }}" class="active"><span class="nav-icon">➕</span> Create Student</a>
+<a href="{{ url_for('admin.manage_students') }}"><span class="nav-icon">👨‍🎓</span> Manage Students</a>
+<span class="nav-section-title">Scheduling</span>
+<a href="{{ url_for('admin.timetable') }}"><span class="nav-icon">🗓️</span> Timetable</a>
+<span class="nav-section-title">Records</span>
+<a href="{{ url_for('admin.view_attendance') }}"><span class="nav-icon">📋</span> View Attendance</a>
+{% endblock %}
+{% block sidebar_footer %}<a href="{{ url_for('admin.logout') }}">🚪 Logout</a>{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:640px;">
+    <div class="card-header"><div class="card-title">👨‍🎓 New Student Details</div></div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" name="name" class="form-control" placeholder="Enter full name" required>
+                </div>
+                <div class="form-group">
+                    <label>Roll Number *</label>
+                    <input type="text" name="roll_number" class="form-control" placeholder="e.g. 22CSE001" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Username (Login) *</label>
+                    <input type="text" name="username" class="form-control" placeholder="Login username" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Password *</label>
+                    <input type="password" name="password" class="form-control" placeholder="Set password" required autocomplete="new-password">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Branch</label>
+                    <select name="branch_id" id="branch_id" class="form-control" onchange="filterSections()">
+                        <option value="">-- Select Branch --</option>
+                        {% for b in branches %}
+                        <option value="{{ b.id }}">{{ b.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Year</label>
+                    <select name="year_id" id="year_id" class="form-control" onchange="filterSections()">
+                        <option value="">-- Select Year --</option>
+                        {% for y in years %}
+                        <option value="{{ y.id }}">Year {{ y.year_number }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Section</label>
+                <select name="section_id" id="section_id" class="form-control">
+                    <option value="">-- Select Section --</option>
+                    {% for sec in sections %}
+                    <option value="{{ sec.id }}" data-branch="{{ sec.branch_id }}" data-year="{{ sec.year_id }}">{{ sec.branch_name }} – Year {{ sec.year_number }} – Section {{ sec.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="d-flex gap-12 mt-16">
+                <button type="submit" class="btn btn-success">Create Student</button>
+                <a href="{{ url_for('admin.create_student') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function filterSections() {
+    const branchId = document.getElementById('branch_id').value;
+    const yearId = document.getElementById('year_id').value;
+    const sectionSelect = document.getElementById('section_id');
+    const options = sectionSelect.querySelectorAll('option');
+
+    options.forEach(opt => {
+        if (!opt.value) return;
+        const b = opt.getAttribute('data-branch');
+        const y = opt.getAttribute('data-year');
+        
+        if ((!branchId || b === branchId) && (!yearId || y === yearId)) {
+            opt.style.display = '';
+        } else {
+            opt.style.display = 'none';
+        }
+    });
+    
+    // Reset selection if hidden
+    if (sectionSelect.selectedOptions[0] && sectionSelect.selectedOptions[0].style.display === 'none') {
+        sectionSelect.value = '';
+    }
+}
+</script>
+{% endblock %}

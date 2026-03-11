@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student Attendance Management System{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" onerror="this.style.display='none'">
+                <div class="sidebar-logo-text">
+                    <!-- <div class="app-name">Attendance MS</div>
+                    <div class="app-sub">Management System</div> -->
+                </div>
+            </div>
+            <!-- Mobile Toggle Close -->
+            <button class="mobile-toggle-close" onclick="toggleSidebar()">✕</button>
+        </div>
+        <div class="sidebar-user">
+            <div class="user-role">{{ session.role | upper }}</div>
+            <div class="user-name">{{ session.get('faculty_name') or session.get('student_name') or session.username }}</div>
+        </div>
+        <nav class="sidebar-nav">
+            {% block sidebar %}{% endblock %}
+        </nav>
+        <div class="sidebar-footer">
+            {% block sidebar_footer %}{% endblock %}
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button class="mobile-toggle-btn" onclick="toggleSidebar()">☰</button>
+                <div>
+                    <div class="page-title">{% block page_title %}Dashboard{% endblock %}</div>
+                    <div class="page-subtitle">{% block page_subtitle %}{% endblock %}</div>
+                </div>
+            </div>
+            <div>{% block top_bar_right %}{% endblock %}</div>
+        </div>
+        <div class="content-area">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% block scripts %}{% endblock %}
+<script>
+function toggleSidebar() {
+    document.querySelector('.sidebar').classList.toggle('active');
+}
+</script>
+</body>
+</html>

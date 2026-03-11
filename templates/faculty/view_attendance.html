@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}View Attendance – Faculty{% endblock %}
+{% block page_title %}My Attendance Records{% endblock %}
+{% block page_subtitle %}View attendance marked by you{% endblock %}
+
+{% block sidebar %}
+<span class="nav-section-title">Overview</span>
+<a href="{{ url_for('faculty.dashboard') }}"><span class="nav-icon">📊</span> Dashboard</a>
+<span class="nav-section-title">Attendance</span>
+<a href="{{ url_for('faculty.mark_attendance') }}"><span class="nav-icon">✅</span> Mark Attendance</a>
+<a href="{{ url_for('faculty.view_attendance') }}" class="active"><span class="nav-icon">📋</span> View Records</a>
+{% endblock %}
+{% block sidebar_footer %}<a href="{{ url_for('faculty.logout') }}">🚪 Logout</a>{% endblock %}
+
+{% block content %}
+<div class="filter-bar">
+    <form method="GET" style="display:contents;">
+        <div class="filter-group">
+            <label>Section</label>
+            <select name="section_id" class="form-control">
+                <option value="">All Sections</option>
+                {% for sec in assigned_sections %}
+                <option value="{{ sec.id }}" {% if filter_section == sec.id|string %}selected{% endif %}>
+                    {{ sec.branch_name }} Y{{ sec.year_number }} {{ sec.section_name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Period</label>
+            <select name="period_number" class="form-control">
+                <option value="">All Periods</option>
+                {% for p in periods %}
+                <option value="{{ p }}" {% if filter_period == p|string %}selected{% endif %}>Period {{ p }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Date</label>
+            <input type="date" name="date" class="form-control" value="{{ filter_date }}">
+        </div>
+        <button type="submit" class="btn btn-primary" style="align-self:flex-end;">Filter</button>
+        <a href="{{ url_for('faculty.view_attendance') }}" class="btn btn-secondary" style="align-self:flex-end;">Reset</a>
+    </form>
+</div>
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Attendance Records</div>
+        <span class="badge badge-info">{{ records|length }} records</span>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr><th>Date</th><th>Student</th><th>Roll No</th><th>Branch</th><th>Year</th><th>Section</th><th>Period</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                {% for r in records %}
+                <tr>
+                    <td>{{ r.date }}</td>
+                    <td><strong>{{ r.student_name }}</strong></td>
+                    <td><code>{{ r.roll_number }}</code></td>
+                    <td>{{ r.branch_name }}</td>
+                    <td>Y{{ r.year_number }}</td>
+                    <td><span class="section-label">{{ r.section_name }}</span></td>
+                    <td><span class="badge badge-primary">P{{ r.period_number }}</span></td>
+                    <td>
+                        {% if r.status == 'present' %}
+                        <span class="badge badge-success">Present</span>
+                        {% else %}
+                        <span class="badge badge-danger">Absent</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📋</div><p>No records found.</p></div></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
