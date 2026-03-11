@@ -14,8 +14,8 @@ app.register_blueprint(admin_bp, url_prefix='/admin')
 app.register_blueprint(faculty_bp, url_prefix='/faculty')
 app.register_blueprint(student_bp, url_prefix='/student')
 
-DB_PATH = 'database.db'
-
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "database.db")
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -153,7 +153,7 @@ app.config['DB_PATH'] = DB_PATH
 def index():
     return redirect(url_for('student.login'))
 
-
-if __name__ == '__main__':
+with app.app_context():
     init_db()
+if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
